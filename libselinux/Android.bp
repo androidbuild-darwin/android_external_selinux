@@ -104,6 +104,46 @@ cc_defaults {
     ],
 
     target: {
+        darwin: {
+            // Use the offline Android host sources plus context parsing for checkfc.
+            // Kernel SELinux interfaces are only available on Linux.
+            cflags: ["-DHAVE_STRLCPY"],
+            exclude_srcs: [
+                "src/android/android.c",
+                "src/android/android_seapp.c",
+                "src/avc.c",
+                "src/avc_internal.c",
+                "src/avc_sidtab.c",
+                "src/canonicalize_context.c",
+                "src/checkAccess.c",
+                "src/check_context.c",
+                "src/compute_av.c",
+                "src/compute_create.c",
+                "src/compute_member.c",
+                "src/deny_unknown.c",
+                "src/disable.c",
+                "src/enabled.c",
+                "src/fgetfilecon.c",
+                "src/fsetfilecon.c",
+                "src/get_initial_context.c",
+                "src/getenforce.c",
+                "src/getfilecon.c",
+                "src/getpeercon.c",
+                "src/init.c",
+                "src/lgetfilecon.c",
+                "src/load_policy.c",
+                "src/lsetfilecon.c",
+                "src/mapping.c",
+                "src/policyvers.c",
+                "src/procattr.c",
+                "src/reject_unknown.c",
+                "src/selinux_internal.c",
+                "src/sestatus.c",
+                "src/setenforce.c",
+                "src/setfilecon.c",
+                "src/stringrep.c",
+            ],
+        },
         host: {
             cflags: [
                 "-DBUILD_HOST",
@@ -189,6 +229,12 @@ cc_library {
 cc_test_host {
     name: "libselinux_test",
     defaults: ["libselinux_defaults"],
+    target: {
+        darwin: {
+            // These tests exercise the Android runtime implementation.
+            enabled: false,
+        },
+    },
     srcs: ["src/android/android_unittest.cpp"],
 
     cflags: [

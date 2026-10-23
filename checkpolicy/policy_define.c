@@ -37,6 +37,9 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifdef __APPLE__
+#define s6_addr32 __u6_addr.__u6_addr32
+#endif
 #ifndef IPPROTO_DCCP
 #define IPPROTO_DCCP 33
 #endif
@@ -5375,7 +5378,7 @@ int define_ipv4_node_context(void)
 
 	free(id);
 
-	if (mask.s_addr != 0 && ((~be32toh(mask.s_addr) + 1) & ~be32toh(mask.s_addr)) != 0) {
+	if (mask.s_addr != 0 && ((~ntohl(mask.s_addr) + 1) & ~ntohl(mask.s_addr)) != 0) {
 		yywarn("ipv4 mask is not contiguous");
 	}
 
@@ -5457,7 +5460,7 @@ int define_ipv4_cidr_node_context(void)
 		mask = 0;
 	} else {
 		mask = ~((UINT32_C(1) << (32 - mask_bits)) - 1);
-		mask = htobe32(mask);
+		mask = htonl(mask);
 	}
 
 	if ((~mask & addr.s_addr) != 0)
@@ -5524,7 +5527,7 @@ static void ipv6_cidr_bits_to_mask(unsigned long cidr_bits, struct in6_addr *mas
 		} else if (cidr_bits >= 32) {
 			mask->s6_addr32[i] = ~UINT32_C(0);
 		} else {
-			mask->s6_addr32[i] = htobe32(~((UINT32_C(1) << (32 - cidr_bits)) - 1));
+			mask->s6_addr32[i] = htonl(~((UINT32_C(1) << (32 - cidr_bits)) - 1));
 		}
 
 		if (cidr_bits >= 32)
